@@ -1,97 +1,191 @@
-[![pytest](https://github.com/quadbio/fengalotl/actions/workflows/install.yml/badge.svg)](https://github.com/quadbio/fengalotl/actions/workflows/install.yml)
-![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
+# Fengalotl 🦎
 
-## Requirements
-- A python package manager such as conda or mamba. Installing mamba is recommended as it is lightweight and fast. More information can be found [here](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) and [here](https://github.com/conda-forge/miniforge). Verify by typing `conda` or `mamba` in the terminal. Help messages should appear.
+[![Install](https://github.com/quadbio/fengalotl/actions/workflows/install.yml/badge.svg)](https://github.com/quadbio/fengalotl/actions/workflows/install.yml)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Shiny](https://img.shields.io/badge/shiny-python-green.svg)](https://shiny.posit.co/py/)
 
-## Install instructions
-**a. On a remote server:** Connect to the server (e.g. through SSH)\
-**b. On a local machine (MacOS):** Open a terminal (e.g by typing "terminal" in SpotlightSearch)\
+An interactive Shiny application for exploring spatial transcriptomics data from the axolotl brain.
+
+## 📋 Overview
+
+Fengalotl provides an interactive web interface to explore spatial gene expression data from adult axolotl brain regions, including:
+
+| Brain Region | Replicates |
+|--------------|------------|
+| 🧠 Metencephalon (hindbrain) | 2 |
+| 👃 Olfactory bulb | 2 |
+| 🔴 Pituitary | 1 |
+| 🧩 Telencephalon (forebrain) | 2 |
+| 🔷 Thalamencephalon (diencephalon) | 3 |
+
+## ✨ Features
+
+- **Spatial visualization**: View gene expression patterns in their spatial context
+- **PCA projection**: Explore cell clusters in 3D reduced dimensional space
+- **Gene expression plots**: Visualize expression levels across cell clusters
+- **Differential expression**: Identify marker genes for each cluster
+- **Annotated gene names**: Gene IDs mapped to Axolotl Tanaka annotations (~8,200 genes)
+- **Fast loading**: Cached data for responsive interactions after initial load
+
+---
+
+## 🚀 Installation
+
+### Requirements
+- Python 3.12 or higher
+- A package manager: [conda](https://docs.conda.io/) or [mamba](https://mamba.readthedocs.io/) (recommended)
+
+### Setup Instructions
+
+**a. On a remote server:** Connect via SSH  
+**b. On a local machine (MacOS):** Open Terminal  
 **c. On a local machine (Windows):** Press `Windows key` + `X`, select Windows Terminal
 
-Navigate to a suitable location (a directory called fengalotl will be placed in there) and run the following commands:
-```
-# Create a new conda environment:
+```bash
+# Create a new conda environment
 mamba create -n fengalotl python=3.12
 
-# Activate the environment:
+# Activate the environment
 mamba activate fengalotl
 
-# Fetch the code from github. This will create a directory called 'fengalotl'
+# Clone the repository
 git clone --branch main https://github.com/quadbio/fengalotl.git
 
-# Switch to that directory
+# Navigate to the directory
 cd fengalotl
 
-# Install (in editable mode, package will incorporate changes if code is modified)
+# Install the package
 pip install -e .
 ```
 
-The following step is only necessary if you are working on a remote server:
+---
+
+## 📊 Data Setup
+
+### Required Files
+
+Place the `.h5ad` data files in the `data/` directory:
+
 ```
-# Make a directory for the data
-mkdir data
+data/
+├── Adult_metencephalon_rep1_2_DP8400015234BL_B1-2_region_ann.h5ad
+├── Adult_metencephalon_rep3_DP8400015234BL_A3-1_region_ann.h5ad
+├── Adult_olfactory_bulb_rep1_DP8400015234BL_A1-1_region_ann.h5ad
+├── Adult_olfactory_bulb_rep2_DP8400015234BL_A2-2_region_ann.h5ad
+├── Adult_pituitary_rep1_2_DP8400015234BL_B1-2_region_ann.h5ad
+├── Adult_telencephalon_rep1_DP8400015234BL_A2-1_region_ann.h5ad
+├── Adult_telencephalon_rep3_DP8400015234BL_A4-1_region_ann.h5ad
+├── Adult_thalamencephalon_rep1_DP8400015234BL_A5-1_region_ann.h5ad
+├── Adult_thalamencephalon_rep2_DP8400015234BL_A5-2_region_ann.h5ad
+├── Adult_thalamencephalon_rep3_DP8400015234BL_A6-1_region_ann.h5ad
+├── genes.npy
+└── samples.npy
 ```
 
-## Downloading the data
-In order to fetch the data (provided as a tarball ending with tar.gz), download it to you local machine from Polybox via the link shared on Slack. Then proceed with either of the following options:
+### Gene Annotations
 
-**a. On a remote server:** The data downloaded to your local machine needs to be transferred to the remote. Use your favourite File Transfer Protocol client program (e.g. FileZilla) or simply run the following command from your terminal on your local machine:
-```
-# This command transfers the tarball to the data directory. You might be asked to authenicate yourself
-scp /path/to/tarball/on/local/machine username@domain:/path/to/fengalotl/data
-```
-Note: the path to the data directory on the server should be provided as an absolute link (starting with a /). If you don't know the path, enter the data directory you created during the installation process and and type in `echo $PWD`.\
+Gene annotations are automatically loaded from `../Result/Adult_meta_DGE_markers.csv` (relative to the Fengalotl directory).
 
-Upon login to the server, you should find the tarball in fengalotl/data. We can now remove unpack the data into the data directory and remove the tarball as it is no longer needed
-```
-# Unpack the data and clean up
-tar -xzvf data.tar.gz && rm data.tar.gz
-```
-**b. On a local machine (MacOS):**
-Drag and drop the tarball you downloaded from Polybox to the fengalotl directory. Double click on the tarball to decompress the object, this will create an ordinary folder called "data". After this process has finished, you can delete the `data.tar.gz`.
+---
 
-**c. On a local machine (Windows):** Will be added soon
- 
-## Running the app
-**a. On a remote server:**\
-Connect to the remote server while forwarding a port:
-```
-# Make sure the ports are not already in use
-ssh -L 12345:localhost:7600 username@domain
-```
-Launch the app like so:
-```
-# Change to the fengalotl directory
-cd path/to/fengalotl
+## 🖥️ Running the App
 
-# Activate the conda environment
-conda activate fengalotl
+### On a Local Machine
 
-# Run the app
-shiny run --port 7600 src/fengalotl/app.py
-```
-
-You can now access the app in your local browser by typing in `localhost:12345` in the search bar.
-
-**b. On a local machine (MacOS):**
-Open a terminal like before and execute the following commands
-```
-# Move to the fengalotl directory
-cd path/to/fengalotl
-
-# Activate the Python environment
+```bash
+# Activate the environment
 mamba activate fengalotl
 
-# Run the app
+# Navigate to the project directory
+cd fengalotl
+
+# Run the Shiny app
 shiny run src/fengalotl/app.py
 ```
-You can now access the app through the search bar in your local browser by typing `localhost:8000`.
-Note: There might be cases where the standard port is blocked and Shiny selects a different one. In this case you won't be able to access the app as described above. Check the commandline upon startup and search for a message like
-```
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-```
-Copy the part `http://127.0.0.1:8000` into the search bar or your browser. This should lead you to the app.
 
-**c. On a local machine (Windows):**
-Will be added soon
+Open your browser: **http://localhost:8000**
+
+### On a Remote Server
+
+1. Connect with port forwarding:
+```bash
+ssh -L 12345:localhost:8000 username@server
+```
+
+2. On the server, run:
+```bash
+mamba activate fengalotl
+cd fengalotl
+shiny run src/fengalotl/app.py --port 8000
+```
+
+3. Access locally at: **http://localhost:12345**
+
+---
+
+## 🎮 Usage Guide
+
+1. **Select a dataset** from the dropdown menu
+2. **Choose clustering** (Leiden clustering, Structure annotation, or Seurat clusters)
+3. **Toggle cluster visualization** with the "Show clusters" switch
+4. **Search for a gene** using the annotated gene names (e.g., "GLUL", "GAD1")
+5. **Enable expression plotting** with the "Plot gene expression" switch
+6. **Adjust visualization** using the dot size sliders
+7. **Explore markers** in the differential expression accordion panel
+
+### Tips
+- Gene names are displayed as `AnnotatedName (AMEX_ID)` for easy searching
+- First load of a dataset takes time; subsequent interactions are fast due to caching
+- Use the fullscreen button on plots for detailed exploration
+
+---
+
+## 📁 Project Structure
+
+```
+Fengalotl/
+├── data/                       # H5AD data files
+├── src/fengalotl/
+│   ├── __init__.py
+│   ├── _constants.py           # Configuration & gene annotations
+│   ├── app.py                  # Main Shiny app entry point
+│   ├── fct/
+│   │   ├── expression.py       # Gene expression plotting
+│   │   ├── load.py             # Data loading with caching
+│   │   ├── spatial_widget.py   # Spatial plot functions
+│   │   └── umap_widget.py      # PCA/UMAP plot functions
+│   ├── js/
+│   │   └── _format.py          # Dropdown formatting
+│   └── mod/
+│       ├── server.py           # Shiny server logic
+│       └── ui.py               # Shiny UI definition
+├── scripts/
+│   └── create_tarball.sh       # Data packaging script
+├── setup.py
+├── pyproject.toml
+└── README.md
+```
+
+---
+
+## 🔧 Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| [Shiny for Python](https://shiny.posit.co/py/) | Web application framework |
+| [Scanpy](https://scanpy.readthedocs.io/) | Single-cell analysis |
+| [Plotly](https://plotly.com/python/) | Interactive visualizations |
+| [Glasbey](https://github.com/lmcinnes/glasbey) | Color palette generation |
+| [Pandas](https://pandas.pydata.org/) | Data manipulation |
+| [NumPy](https://numpy.org/) | Numerical computing |
+
+---
+
+## 🙏 Acknowledgments
+
+- **Tanaka Lab** for axolotl gene annotations
+- **Quadbio** for spatial transcriptomics data generation
+
+---
+
+*Built with 🦎 for axolotl brain research*

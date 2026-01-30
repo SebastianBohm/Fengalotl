@@ -1,5 +1,5 @@
 from fengalotl.fct.load import get_data
-from fengalotl._constants import GENES_LABEL
+from fengalotl._constants import GENES_LABEL, GENE_ANNOTATION
 
 import numpy as np
 import plotly.graph_objects as go
@@ -36,7 +36,8 @@ def add_umap_clusters(input, widget):
     if not (adata := get_data(input)):
         return None
     
-    if not input.select_resolution():
+    resolution = input.select_resolution()
+    if not resolution or resolution not in adata.obs.columns:
         return None
 
     # Check if we have UMAP or PCA
@@ -51,11 +52,11 @@ def add_umap_clusters(input, widget):
 
     if input.switch_clusters():
         
-        cluster_ids = np.unique(adata.obs[input.select_resolution()].dropna())
+        cluster_ids = np.unique(adata.obs[resolution].dropna())
         colors = glasbey.create_palette(palette_size=len(cluster_ids), lightness_bounds=(50, 100))
 
         for color, cluster_id in zip(colors, cluster_ids):
-            mask = adata.obs[input.select_resolution()] == cluster_id
+            mask = adata.obs[resolution] == cluster_id
 
             x_coords = coords[mask, 0]
             y_coords = coords[mask, 1]
@@ -88,20 +89,29 @@ def add_umap_expression(input, widget):
     else:
         return None
 
-    widget.data = [trace for trace in widget.data if trace.name not in GENES_LABEL]
+    # Remove existing gene expression traces
+    widget.data = [trace for trace in widget.data if trace.name not in GENES_LABEL and trace.name not in GENE_ANNOTATION.values()]
 
     if input.switch_expression() and input.select_gene():
 
-        gene_name = input.select_gene()
-        if gene_name in adata.var_names:
-            gene_expression = np.array(adata[:,gene_name].X.flatten())
+        gene_id = input.select_gene()  # This is the AMEX ID
+        if gene_id in adata.var_names:
+            # Handle sparse matrices by converting to dense array
+            gene_data = adata[:,gene_id].X
+            if hasattr(gene_data, 'toarray'):
+                gene_expression = np.array(gene_data.toarray()).flatten()
+            else:
+                gene_expression = np.array(gene_data).flatten()
             x_coords = coords[:, 0]
             y_coords = coords[:, 1]
             z_coords = coords[:, 2] if coords.shape[1] > 2 else np.zeros(len(x_coords))
             
+            # Use annotated name for display
+            display_name = GENE_ANNOTATION.get(gene_id, gene_id)
+            
             widget.add_trace(
                 go.Scatter3d(
-                    name = gene_name,
+                    name = display_name,
                     x = x_coords,
                     y = y_coords,
                     z = z_coords,

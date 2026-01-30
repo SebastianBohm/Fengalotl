@@ -1,9 +1,12 @@
 from shiny import ui
 from shinywidgets import output_widget
 
-from fengalotl._constants import DATA, GENES, CLUSTERING_OPTIONS
+from fengalotl._constants import DATA, GENES_DISPLAY, CLUSTERING_OPTIONS
 from fengalotl.js._format import DROPDOWN_CONFIG
 from fengalotl import __version__
+
+# Create gene choices dict for selectize: {value: label}
+GENE_CHOICES = {'': '', **GENES_DISPLAY}
 
 app_ui = ui.page_navbar(  
 
@@ -31,7 +34,7 @@ app_ui = ui.page_navbar(
                 ui.input_selectize(
                     "select_gene",
                     "Select gene",
-                    ['', *GENES],
+                    GENE_CHOICES,
                     selected=None,
                     options={
                         "render": DROPDOWN_CONFIG
@@ -43,7 +46,7 @@ app_ui = ui.page_navbar(
                 ui.input_selectize(
                     "select_gene_expression",
                     "Select genes",
-                    ['', *GENES],
+                    GENE_CHOICES,
                     selected=None,
                     multiple=True,
                     options={
