@@ -133,11 +133,6 @@ shiny run src/fengalotl/app.py --port 8000
 6. **Adjust visualization** using the dot size sliders
 7. **Explore markers** in the differential expression accordion panel
 
-### Tips
-- Gene names are displayed as `AnnotatedName (AMEX_ID)` for easy searching
-- First load of a dataset takes time; subsequent interactions are fast due to caching
-- Use the fullscreen button on plots for detailed exploration
-
 ---
 
 ## 📁 Project Structure
@@ -183,9 +178,6 @@ Fengalotl/
 
 ## 🙏 Acknowledgments
 
-- **Tanaka Lab** for axolotl gene annotations
-- **Quadbio** for spatial transcriptomics data generation
+- **Adnan** for the template
 
 ---
-
-*Built with 🦎 for axolotl brain research*
