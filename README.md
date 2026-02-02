@@ -1,6 +1,5 @@
 # Fengalotl 🦎
 
-[![Install](https://github.com/quadbio/fengalotl/actions/workflows/install.yml/badge.svg)](https://github.com/quadbio/fengalotl/actions/workflows/install.yml)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Shiny](https://img.shields.io/badge/shiny-python-green.svg)](https://shiny.posit.co/py/)
 
@@ -21,7 +20,6 @@ Fengalotl provides an interactive web interface to explore spatial gene expressi
 ## ✨ Features
 
 - **Spatial visualization**: View gene expression patterns in their spatial context
-- **PCA projection**: Explore cell clusters in 3D reduced dimensional space
 - **Gene expression plots**: Visualize expression levels across cell clusters
 - **Differential expression**: Identify marker genes for each cluster
 - **Annotated gene names**: Gene IDs mapped to Axolotl Tanaka annotations (~8,200 genes)
@@ -78,13 +76,14 @@ data/
 ├── Adult_thalamencephalon_rep1_DP8400015234BL_A5-1_region_ann.h5ad
 ├── Adult_thalamencephalon_rep2_DP8400015234BL_A5-2_region_ann.h5ad
 ├── Adult_thalamencephalon_rep3_DP8400015234BL_A6-1_region_ann.h5ad
+├── Adult_meta_DGE_markers.csv
 ├── genes.npy
 └── samples.npy
 ```
 
 ### Gene Annotations
 
-Gene annotations are automatically loaded from `../Result/Adult_meta_DGE_markers.csv` (relative to the Fengalotl directory).
+Gene annotations are automatically loaded from `data/Adult_meta_DGE_markers.csv`.
 
 ---
 
