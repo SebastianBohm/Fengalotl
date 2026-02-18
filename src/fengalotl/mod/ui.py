@@ -1,12 +1,9 @@
 from shiny import ui
 from shinywidgets import output_widget
 
-from fengalotl._constants import DATA, GENES_DISPLAY, CLUSTERING_OPTIONS
+from fengalotl._constants import DATA, CLUSTERING_OPTIONS
 from fengalotl.js._format import DROPDOWN_CONFIG
 from fengalotl import __version__
-
-# Create gene choices dict for selectize: {value: label}
-GENE_CHOICES = {'': '', **GENES_DISPLAY}
 
 app_ui = ui.page_navbar(  
 
@@ -34,47 +31,33 @@ app_ui = ui.page_navbar(
                 ui.input_selectize(
                     "select_gene",
                     "Select gene",
-                    GENE_CHOICES,
+                    choices={},
                     selected=None,
                     options={
                         "render": DROPDOWN_CONFIG
                         }
                     ),
                 ui.input_switch("switch_expression", "Plot gene expression", False),
-                ui.input_slider("slider_dotsize_umap", "Slider PCA", 1, 20, 2),
-                ui.input_slider("slider_dotsize_space", "Slider Space", 1, 20, 2),
-                ui.input_selectize(
-                    "select_gene_expression",
-                    "Select genes",
-                    GENE_CHOICES,
-                    selected=None,
-                    multiple=True,
-                    options={
-                        "render": DROPDOWN_CONFIG
-                        }
-                    ),
-                ui.input_slider("slider_n_genes", "Slider nGenes", 1, 10, 3),
-                ui.input_slider("slider_lfc", "Slider minLFC", 0.5, 2.5, 0.5, step = 0.1)
+                ui.input_switch("switch_g2m", "Show G2M score", False),
+                ui.input_slider("slider_dotsize_umap", "Dot size UMAP", 1, 20, value=2),
+                ui.input_slider("slider_dotsize_space", "Dot size Space", 1, 20, value=2),
 
             ),
             ui.layout_columns(
                  ui.card(
-                     ui.card_header("PCA Projection"),
-                     output_widget('plot_umap'),
-                     full_screen = True),
+                     ui.card_header("UMAP Projection"),
+                     output_widget('plot_umap', height="400px"),
+                     output_widget('plot_umap_extra', height="400px"),
+                     full_screen=True),
                 ui.card(
                     ui.card_header("Spatial plot"),
-                    output_widget("plot_space"),
-                    full_screen = True),
-                ui.accordion(ui.accordion_panel('Gene expression per cluster', ui.output_plot("plot_gene_expression")),
-                             ui.accordion_panel('Differential gene expression', ui.output_plot("plot_de")),
-                             id = 'panel',
-                             open = False
-                             ),
-                col_widths={"sm": (5, 7, 12)}
-                )
-                
-            )
+                    output_widget("plot_space", height="400px"),
+                    output_widget("plot_space_extra", height="400px"),
+                    full_screen=True),
+                 col_widths={"sm": (5, 7, 12)}
+                 )
+                 
+             )
     ),
 
     # Other components of the header        

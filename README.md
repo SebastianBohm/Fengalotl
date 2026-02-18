@@ -9,6 +9,9 @@ An interactive Shiny application for exploring spatial transcriptomics data from
 
 Fengalotl provides an interactive web interface to explore spatial gene expression data from adult axolotl brain regions, including:
 
+![Spatial cluster overview](spatial_clusters.png)
+*Leiden clusters across all 10 spatial transcriptomics samples. Full-resolution PDF: [spatial_clusters.pdf](spatial_clusters.pdf)*
+
 | Brain Region | Replicates |
 |--------------|------------|
 | 🧠 Metencephalon (hindbrain) | 2 |
@@ -19,11 +22,14 @@ Fengalotl provides an interactive web interface to explore spatial gene expressi
 
 ## ✨ Features
 
-- **Spatial visualization**: View gene expression patterns in their spatial context
-- **Gene expression plots**: Visualize expression levels across cell clusters
-- **Differential expression**: Identify marker genes for each cluster
-- **Annotated gene names**: Gene IDs mapped to Axolotl Tanaka annotations (~8,200 genes)
-- **Fast loading**: Cached data for responsive interactions after initial load
+- **Spatial visualization** — spot-level gene expression in spatial coordinates
+- **UMAP projection** — 2D UMAP with cluster overlays, pre-computed for all datasets
+- **Cluster overlays** — Leiden clustering, structure annotation, or Seurat clusters
+- **Gene expression overlay** — per-gene expression mapped to both UMAP and spatial plots
+- **G2M cell-cycle score** — computed on demand from canonical marker genes, shown on both plots
+- **Dynamic gene selector** — only genes actually present in the selected dataset are shown
+- **Annotated gene names** — AMEX gene IDs mapped to Axolotl Tanaka annotations
+- **Fast loading** — full in-memory caching with mtime invalidation; glasbey palettes and gene choice dicts cached across dataset switches
 
 ---
 
@@ -31,25 +37,17 @@ Fengalotl provides an interactive web interface to explore spatial gene expressi
 
 ### Requirements
 - Python 3.12 or higher
-- A package manager: [conda](https://docs.conda.io/) or [mamba](https://mamba.readthedocs.io/) (recommended)
+- [conda](https://docs.conda.io/) or [mamba](https://mamba.readthedocs.io/) (recommended)
 
-### Setup Instructions
-
-**a. On a remote server:** Connect via SSH  
-**b. On a local machine (MacOS):** Open Terminal  
-**c. On a local machine (Windows):** Press `Windows key` + `X`, select Windows Terminal
+### Setup
 
 ```bash
-# Create a new conda environment
+# Create and activate environment
 mamba create -n fengalotl python=3.12
-
-# Activate the environment
 mamba activate fengalotl
 
 # Clone the repository
 git clone --branch main https://github.com/quadbio/fengalotl.git
-
-# Navigate to the directory
 cd fengalotl
 
 # Install the package
@@ -62,75 +60,78 @@ pip install -e .
 
 ### Required Files
 
-Place the `.h5ad` data files in the `data/` directory:
+Place the processed `.h5ad` files and the annotation CSV in `data/`:
 
 ```
 data/
-├── Adult_metencephalon_rep1_2_DP8400015234BL_B1-2_region_ann.h5ad
-├── Adult_metencephalon_rep3_DP8400015234BL_A3-1_region_ann.h5ad
-├── Adult_olfactory_bulb_rep1_DP8400015234BL_A1-1_region_ann.h5ad
-├── Adult_olfactory_bulb_rep2_DP8400015234BL_A2-2_region_ann.h5ad
-├── Adult_pituitary_rep1_2_DP8400015234BL_B1-2_region_ann.h5ad
-├── Adult_telencephalon_rep1_DP8400015234BL_A2-1_region_ann.h5ad
-├── Adult_telencephalon_rep3_DP8400015234BL_A4-1_region_ann.h5ad
-├── Adult_thalamencephalon_rep1_DP8400015234BL_A5-1_region_ann.h5ad
-├── Adult_thalamencephalon_rep2_DP8400015234BL_A5-2_region_ann.h5ad
-├── Adult_thalamencephalon_rep3_DP8400015234BL_A6-1_region_ann.h5ad
-├── Adult_meta_DGE_markers.csv
-├── genes.npy
-└── samples.npy
+├── Adult_metencephalon_rep1_2_DP8400015234BL_B1-2_final.h5ad
+├── Adult_metencephalon_rep3_DP8400015234BL_A3-1_final.h5ad
+├── Adult_olfactory_bulb_rep1_DP8400015234BL_A1-1_final.h5ad
+├── Adult_olfactory_bulb_rep2_DP8400015234BL_A2-2_final.h5ad
+├── Adult_pituitary_rep1_2_DP8400015234BL_B1-2_final.h5ad
+├── Adult_telencephalon_rep1_DP8400015234BL_A2-1_final.h5ad
+├── Adult_telencephalon_rep3_DP8400015234BL_A4-1_final.h5ad
+├── Adult_thalamencephalon_rep1_DP8400015234BL_A5-1_final.h5ad
+├── Adult_thalamencephalon_rep2_DP8400015234BL_A5-2_final.h5ad
+├── Adult_thalamencephalon_rep3_DP8400015234BL_A6-1_final.h5ad
+└── Adult_meta_DGE_markers.csv
 ```
 
-### Gene Annotations
+Each `_final.h5ad` must contain:
+- `obsm['spatial']` — 2D spatial coordinates
+- `obsm['X_umap']` — 2D UMAP coordinates (pre-compute with `scripts/precompute_umap.py` if missing)
+- `obs['spatial_leiden_e30_s8']` — Leiden cluster labels
 
-Gene annotations are automatically loaded from `data/Adult_meta_DGE_markers.csv`.
+### Pre-computing UMAP (if needed)
+
+If any file is missing `X_umap`, run:
+
+```bash
+python scripts/precompute_umap.py
+```
+
+This normalises, log-transforms, selects HVGs, runs PCA → neighbors → UMAP and writes `X_umap` back into each file in-place.
 
 ---
 
 ## 🖥️ Running the App
 
-### On a Local Machine
+### Local Machine
 
 ```bash
-# Activate the environment
 mamba activate fengalotl
-
-# Navigate to the project directory
-cd fengalotl
-
-# Run the Shiny app
-shiny run src/fengalotl/app.py
+python -m shiny run src/fengalotl/app.py
 ```
 
-Open your browser: **http://localhost:8000**
+Open your browser at **http://localhost:8000**
 
-### On a Remote Server
+### Remote Server
 
 1. Connect with port forwarding:
 ```bash
 ssh -L 12345:localhost:8000 username@server
 ```
 
-2. On the server, run:
+2. On the server:
 ```bash
 mamba activate fengalotl
 cd fengalotl
 shiny run src/fengalotl/app.py --port 8000
 ```
 
-3. Access locally at: **http://localhost:12345**
+3. Open locally at **http://localhost:12345**
 
 ---
 
 ## 🎮 Usage Guide
 
-1. **Select a dataset** from the dropdown menu
-2. **Choose clustering** (Leiden clustering, Structure annotation, or Seurat clusters)
-3. **Toggle cluster visualization** with the "Show clusters" switch
-4. **Search for a gene** using the annotated gene names (e.g., "GLUL", "GAD1")
-5. **Enable expression plotting** with the "Plot gene expression" switch
-6. **Adjust visualization** using the dot size sliders
-7. **Explore markers** in the differential expression accordion panel
+1. **Select a dataset** from the dropdown — the app auto-discovers all `_final.h5ad` files in `data/`
+2. **Choose a clustering** resolution (Leiden, Structure annotation, or Seurat clusters)
+3. **Toggle cluster colours** with the "Show clusters" switch
+4. **Search for a gene** — the dropdown is filtered to genes present in the selected dataset, with annotated names
+5. **Plot expression** — enable "Plot gene expression" to overlay expression on both UMAP and spatial plots
+6. **G2M score** — enable "Show G2M score" to visualise cell-cycle activity
+7. **Adjust dot sizes** with the UMAP and Space sliders independently
 
 ---
 
@@ -138,27 +139,44 @@ shiny run src/fengalotl/app.py --port 8000
 
 ```
 Fengalotl/
-├── data/                       # H5AD data files
-├── src/fengalotl/
-│   ├── __init__.py
-│   ├── _constants.py           # Configuration & gene annotations
-│   ├── app.py                  # Main Shiny app entry point
-│   ├── fct/
-│   │   ├── expression.py       # Gene expression plotting
-│   │   ├── load.py             # Data loading with caching
-│   │   ├── spatial_widget.py   # Spatial plot functions
-│   │   └── umap_widget.py      # PCA/UMAP plot functions
-│   ├── js/
-│   │   └── _format.py          # Dropdown formatting
-│   └── mod/
-│       ├── server.py           # Shiny server logic
-│       └── ui.py               # Shiny UI definition
+├── data/                       # H5AD data files + annotation CSV
 ├── scripts/
-│   └── create_tarball.sh       # Data packaging script
+│   └── precompute_umap.py      # One-time UMAP pre-computation script
+├── src/fengalotl/
+│   ├── app.py                  # Shiny app entry point
+│   ├── _constants.py           # Dataset discovery, gene annotations, G2M genes
+│   ├── fct/
+│   │   ├── load.py             # Data loading with in-memory mtime cache
+│   │   ├── spatial_widget.py   # Spatial plot (clusters + expression)
+│   │   └── umap_widget.py      # UMAP plot (clusters + expression + G2M)
+│   ├── js/
+│   │   └── _format.py          # Selectize dropdown formatting
+│   └── mod/
+│       ├── server.py           # Shiny reactive server logic
+│       └── ui.py               # Shiny UI layout
 ├── setup.py
 ├── pyproject.toml
 └── README.md
 ```
+
+---
+
+## 📈 QC Summary
+
+| Sample | Brain Region | Median Genes | Median UMIs | Cells | Recommended |
+|--------|-------------|-------------:|------------:|------:|:-----------:|
+| Adult_olfactory_bulb_rep1_…A1-1 | olfactory_bulb | 912 | 1,050 | 6,659 | |
+| Adult_olfactory_bulb_rep2_…A2-2 | olfactory_bulb | 1,189 | 1,349 | 6,261 | ✓ |
+| Adult_telencephalon_rep1_…A2-1 | telencephalon | 1,330 | 1,499 | 7,987 | ✓ |
+| Adult_telencephalon_rep3_…A4-1 | telencephalon | 796 | 881 | 7,566 | |
+| Adult_thalamencephalon_rep1_…A5-1 | thalamencephalon | 1,642 | 1,970 | 4,530 | ✓ |
+| Adult_thalamencephalon_rep2_…A5-2 | thalamencephalon | 1,408 | 1,695 | 5,837 | |
+| Adult_thalamencephalon_rep3_…A6-1 | thalamencephalon | 1,344 | 1,619 | 5,237 | |
+| Adult_metencephalon_rep1_2_…B1-2 | metencephalon | 1,257 | 1,524 | 3,188 | ✓ |
+| Adult_metencephalon_rep3_…A3-1 | metencephalon | 757 | 870 | 1,296 | |
+| Adult_pituitary_rep1_2_…B1-2 | pituitary | 1,560 | 1,822 | 1,364 | ✓ |
+
+Recommended samples have the highest median genes within their brain region.
 
 ---
 
@@ -167,9 +185,9 @@ Fengalotl/
 | Package | Purpose |
 |---------|---------|
 | [Shiny for Python](https://shiny.posit.co/py/) | Web application framework |
-| [Scanpy](https://scanpy.readthedocs.io/) | Single-cell analysis |
-| [Plotly](https://plotly.com/python/) | Interactive visualizations |
-| [Glasbey](https://github.com/lmcinnes/glasbey) | Color palette generation |
+| [Scanpy](https://scanpy.readthedocs.io/) | H5AD I/O and UMAP pre-computation |
+| [Plotly](https://plotly.com/python/) | Interactive visualisations |
+| [Glasbey](https://github.com/lmcinnes/glasbey) | Distinct colour palette generation |
 | [Pandas](https://pandas.pydata.org/) | Data manipulation |
 | [NumPy](https://numpy.org/) | Numerical computing |
 
@@ -178,5 +196,3 @@ Fengalotl/
 ## 🙏 Acknowledgments
 
 - **Adnan** for the template
-
----

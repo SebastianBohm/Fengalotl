@@ -3,3 +3,5 @@ data/
 __pycache__/
 scripts/statistics/
 *.tar.gz
+result/
+data_orig/
