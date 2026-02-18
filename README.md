@@ -27,7 +27,6 @@ Fengalotl provides an interactive web interface to explore spatial gene expressi
 - **Cluster overlays** — Leiden clustering, structure annotation, or Seurat clusters
 - **Gene expression overlay** — per-gene expression mapped to both UMAP and spatial plots
 - **G2M cell-cycle score** — computed on demand from canonical marker genes, shown on both plots
-- **Dynamic gene selector** — only genes actually present in the selected dataset are shown
 - **Annotated gene names** — AMEX gene IDs mapped to Axolotl Tanaka annotations
 - **Fast loading** — full in-memory caching with mtime invalidation; glasbey palettes and gene choice dicts cached across dataset switches
 
@@ -47,7 +46,7 @@ mamba create -n fengalotl python=3.12
 mamba activate fengalotl
 
 # Clone the repository
-git clone --branch main https://github.com/quadbio/fengalotl.git
+git clone --branch main https://github.com/SebastianBohm/Fengalotl.git
 cd fengalotl
 
 # Install the package
@@ -84,13 +83,11 @@ Each `_final.h5ad` must contain:
 
 ### Pre-computing UMAP (if needed)
 
-If any file is missing `X_umap`, run:
+If any file is missing `X_umap`, run once:
 
 ```bash
 python scripts/precompute_umap.py
 ```
-
-This normalises, log-transforms, selects HVGs, runs PCA → neighbors → UMAP and writes `X_umap` back into each file in-place.
 
 ---
 
@@ -180,19 +177,7 @@ Recommended samples have the highest median genes within their brain region.
 
 ---
 
-## 🔧 Dependencies
-
-| Package | Purpose |
-|---------|---------|
-| [Shiny for Python](https://shiny.posit.co/py/) | Web application framework |
-| [Scanpy](https://scanpy.readthedocs.io/) | H5AD I/O and UMAP pre-computation |
-| [Plotly](https://plotly.com/python/) | Interactive visualisations |
-| [Glasbey](https://github.com/lmcinnes/glasbey) | Distinct colour palette generation |
-| [Pandas](https://pandas.pydata.org/) | Data manipulation |
-| [NumPy](https://numpy.org/) | Numerical computing |
-
----
-
 ## 🙏 Acknowledgments
 
 - **Adnan** for the template
+- **Mateja** for discovering the data
