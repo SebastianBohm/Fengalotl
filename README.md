@@ -28,7 +28,7 @@ Fengalotl provides an interactive web interface to explore spatial gene expressi
 - **Gene expression overlay** — per-gene expression mapped to both UMAP and spatial plots
 - **G2M cell-cycle score** — computed on demand from canonical marker genes, shown on both plots
 - **Annotated gene names** — AMEX gene IDs mapped to Axolotl Tanaka annotations
-- **Fast loading** — full in-memory caching with mtime invalidation; glasbey palettes and gene choice dicts cached across dataset switches
+- **Fast loading**
 
 ---
 
@@ -74,19 +74,6 @@ data/
 ├── Adult_thalamencephalon_rep2_DP8400015234BL_A5-2_final.h5ad
 ├── Adult_thalamencephalon_rep3_DP8400015234BL_A6-1_final.h5ad
 └── Adult_meta_DGE_markers.csv
-```
-
-Each `_final.h5ad` must contain:
-- `obsm['spatial']` — 2D spatial coordinates
-- `obsm['X_umap']` — 2D UMAP coordinates (pre-compute with `scripts/precompute_umap.py` if missing)
-- `obs['spatial_leiden_e30_s8']` — Leiden cluster labels
-
-### Pre-computing UMAP (if needed)
-
-If any file is missing `X_umap`, run once:
-
-```bash
-python scripts/precompute_umap.py
 ```
 
 ---
