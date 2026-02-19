@@ -1,7 +1,9 @@
 data/
+.DS_Store
 .ipynb_checkpoints/
 __pycache__/
 scripts/statistics/
 *.tar.gz
 result/
 data_orig/
+explore_data.ipynb

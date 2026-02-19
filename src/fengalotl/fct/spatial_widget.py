@@ -41,6 +41,9 @@ def add_space_clusters(input, widget):
 
     widget.data = [trace for trace in widget.data if getattr(trace, 'legendgroup', None) != 'cluster']
 
+    if 'spatial' not in adata.obsm:
+        return None
+
     # Get spatial coordinates
     x_coords = adata.obsm['spatial'][:, 0]
     y_coords = adata.obsm['spatial'][:, 1]
